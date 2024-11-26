@@ -1,7 +1,11 @@
 import flet as ft
 import json
+import diagnostico
+
+global data 
 
 def main(page: ft.Page):
+    global data
     page.title = "Formulario de Diagnóstico"
     page.vertical_alignment = ft.MainAxisAlignment.START
     page.scroll = "adaptive"
@@ -38,7 +42,7 @@ def main(page: ft.Page):
     def on_checkbox_change(e, key):
         data["tipos_enfermedades_cronicas"][key] = e.control.value
 
-    def guardar_json(e):
+    def guardar_json(e):        
         with open("diagnostico.json", "w") as file:
             json.dump(data, file, indent=4)
         page.snack_bar = ft.SnackBar(
@@ -46,6 +50,9 @@ def main(page: ft.Page):
             open=True,
         )
         page.update()
+        #llamar el otro formulario y pasar la información del paciente
+        print(data)
+        diagnostico.start_system_expert(ft.Page(),data)
 
     # Contenedor para opciones de enfermedades crónicas
     enfermedades_container = ft.Container(

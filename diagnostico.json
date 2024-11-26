@@ -1,0 +1,19 @@
+{
+    "nombres": "Jos\u00e9 Daniel",
+    "apellidos": "S\u00e1nchez",
+    "residencia_viajes": "San Pedro Sula, Cort\u00e9s, Honduras",
+    "contacto_dengue": true,
+    "antecedentes_dengue": false,
+    "enfermedades_cronicas": true,
+    "tipos_enfermedades_cronicas": {
+        "diabetes": false,
+        "hipertension": true,
+        "enfermedad_cardiaca": false,
+        "otros": ""
+    },
+    "agua_potable_control_mosquitos": true,
+    "medicamentos_usados": "Ibuprofeno 600 mg",
+    "problemas_respiratorios_desHidratacion": false,
+    "sexo": "Masculino",
+    "tipos_enfermedades_cronicas.otros": "Hipercolesterol\u00e9mia"
+}
