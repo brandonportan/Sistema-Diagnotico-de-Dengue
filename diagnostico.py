@@ -31,9 +31,9 @@ image = ft.Image(
 )
 
 def start_system_expert(page: ft.Page, regClinico):
-    # Aquí va el contenido de la función `main`, pero cambiando `regClinico`
-    # como parámetro recibido por esta función.
+    # Llamar directamente a main, usando el objeto `page` proporcionado
     main(page, regClinico)
+
 
 def main(page: ft.Page, regClinico):
     global preg

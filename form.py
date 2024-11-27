@@ -50,9 +50,9 @@ def main(page: ft.Page):
             open=True,
         )
         page.update()
-        #llamar el otro formulario y pasar la información del paciente
-        print(data)
-        diagnostico.start_system_expert(ft.Page(),data)
+        # Llamar el otro formulario y pasar la información del paciente
+        diagnostico.start_system_expert(page, data)
+
 
     # Contenedor para opciones de enfermedades crónicas
     enfermedades_container = ft.Container(
