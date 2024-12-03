@@ -14,6 +14,7 @@ co = cohere.ClientV2(cohere_key)
 i = 0
 preguntas = [
     {
+        "nPregunta": i+1,
         "Pregunta": "¿Tiene el paciente fiebre?",
         "Respuesta": None,
         "TipoPregunta": 1, #? 1: Pregunta cerrada, 2: Pregunta abierta
@@ -96,7 +97,7 @@ def main(page: ft.Page, regClinico):
             ],
         )
         print(res.message.content[0].text)
-        preguntas.append({"Pregunta": res.message.content[0].text, "Respuesta": None})
+        preguntas.append({"nPregunta":i+1,"Pregunta": res.message.content[0].text, "Respuesta": None})
         print(preguntas)
         i = i + 1
         
