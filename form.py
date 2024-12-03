@@ -39,7 +39,7 @@ def main(page: ft.Page):
             enfermedades_container.visible = e.control.value
             page.update()
 
-    def on_checkbox_change(e, key):
+    def on_checkbox_change(e, key):        
         data["tipos_enfermedades_cronicas"][key] = e.control.value
 
     def guardar_json(e):        
@@ -51,6 +51,7 @@ def main(page: ft.Page):
         )
         page.update()
         # Llamar el otro formulario y pasar la información del paciente
+        print(data)
         diagnostico.start_system_expert(page, data)
 
 

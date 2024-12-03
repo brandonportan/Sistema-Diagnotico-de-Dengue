@@ -9,7 +9,7 @@ serpapi_key = os.getenv("SERPAPI_KEY")
 cohere_key = os.getenv("COHERE_KEY")
 
 co = cohere.ClientV2(cohere_key)
-
+paciente = {}
 
 i = 0
 preguntas = [
@@ -32,7 +32,9 @@ image = ft.Image(
 )
 
 def start_system_expert(page: ft.Page, regClinico):
+    global paciente
     # Llamar directamente a main, usando el objeto `page` proporcionado
+    paciente = regClinico
     main(page, regClinico)
 
 
@@ -56,7 +58,7 @@ def main(page: ft.Page, regClinico):
         border_radius=20,
         content=ft.Column(
             [
-                ft.Text("Diagnóstico de Enfermedad del Dengue", color=ft.colors.WHITE),
+                ft.Text("Diagnóstico de Enfermedad del Dengue, paciente: ", color=ft.colors.WHITE),
                 preg,
                 ft.Row(
                     controls=[
@@ -89,15 +91,17 @@ def main(page: ft.Page, regClinico):
         res = co.chat(
             model="command-r-plus-08-2024",
             messages=[
-                {"role": "system", "content": system_message},                
+                {"role": "system", "content": system_message},  
+                {"role": "system", "content": "Necesito que estructures tu respuesta en un JSON tenga esta estructura: {'nPregunta': i+1,'Pregunta': '[tu pregunta]','Respuesta': None,'TipoPregunta': 1, 'imagen': None} . Las preguntas de tipo 1 son cerradas y 2 es abierta"},              
                 {
                     "role": "user",
-                    "content": "These are the questions: " + preguntas.__str__() + "\n if you need more information ask another question (one at a time), if you have diagnostic then finish the conversation with the explanation of the diagnostic and the possible treatment",
+                    "content": "Estas son las preguntas previas " + preguntas.__str__() + "\n si necesitas mas información haz otr pregunta (una a la vez), si tienes un diagnostico finaliza la conversación con una TipoPregunta:3 y la explicación del diagnostico y un posible tratamiento",
                 },
             ],
         )
         print(res.message.content[0].text)
-        preguntas.append({"nPregunta":i+1,"Pregunta": res.message.content[0].text, "Respuesta": None})
+        #preguntas.append({"nPregunta":i+1,"Pregunta": res.message.content[0].text, "Respuesta": None})
+        preguntas.append(res.message.content[0].text.to_dict())
         print(preguntas)
         i = i + 1
         

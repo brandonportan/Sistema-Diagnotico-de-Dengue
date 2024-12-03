@@ -1,18 +1,18 @@
 {
-    "nombres": "Jos\u00e9 Daniel",
-    "apellidos": "S\u00e1nchez Madrid",
-    "residencia_viajes": "San Pedro Sula, Cort\u00e9s, Honduras",
+    "nombres": "Daniel",
+    "apellidos": "Madrid",
+    "residencia_viajes": "Utila ",
     "contacto_dengue": true,
     "antecedentes_dengue": true,
-    "enfermedades_cronicas": true,
+    "enfermedades_cronicas": false,
     "tipos_enfermedades_cronicas": {
         "diabetes": false,
-        "hipertension": true,
+        "hipertension": false,
         "enfermedad_cardiaca": false,
         "otros": ""
     },
-    "agua_potable_control_mosquitos": false,
-    "medicamentos_usados": "Ibuprofeno",
-    "problemas_respiratorios_desHidratacion": false,
+    "agua_potable_control_mosquitos": true,
+    "medicamentos_usados": "NO",
+    "problemas_respiratorios_desHidratacion": true,
     "sexo": "Masculino"
 }
