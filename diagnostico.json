@@ -1,7 +1,7 @@
 {
     "nombres": "Daniel",
-    "apellidos": "Madrid",
-    "residencia_viajes": "Utila ",
+    "apellidos": "S\u00e1nchez",
+    "residencia_viajes": "sdlfkj",
     "contacto_dengue": true,
     "antecedentes_dengue": true,
     "enfermedades_cronicas": false,
@@ -12,7 +12,7 @@
         "otros": ""
     },
     "agua_potable_control_mosquitos": true,
-    "medicamentos_usados": "NO",
+    "medicamentos_usados": "Panadol Extra fuerte",
     "problemas_respiratorios_desHidratacion": true,
     "sexo": "Masculino"
 }

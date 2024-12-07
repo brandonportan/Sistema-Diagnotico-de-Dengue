@@ -3,6 +3,8 @@ import cohere
 from serpapi import GoogleSearch
 import os
 from dotenv import load_dotenv
+import json
+
 
 load_dotenv()
 serpapi_key = os.getenv("SERPAPI_KEY")
@@ -49,7 +51,7 @@ def main(page: ft.Page, regClinico):
     page.padding = 20
     page.update()
 
-    system_message = "Me ayudarás a diagnósticar la enfermedad del dengue  y su posible trataimiento, primero harás preguntas cerradas una por una, cuando tengas suficiente imformación puedes hacer dos o tres preguntas abiertas, todo con el objetivo de dar una conclusión si el paciente tiene o no dengue y que tipo de dengue, para que tengas un contexto inicial esta es información médica general del paciente:  " + regClinico.__str__() 
+    system_message = "Me ayudarás a diagnósticar la enfermedad del dengue  y su posible trataimiento, primero harás preguntas cerradas una por una (con un máximo de 12), luego, si necesitas mas información puedes hacer dos preguntas abiertas, todo con el objetivo de dar una conclusión si el paciente tiene o no dengue y que tipo de dengue, para que tengas un contexto inicial esta es información médica general del paciente:  " + regClinico.__str__() 
 
     container1 = ft.Container(
         width=400,
@@ -69,7 +71,11 @@ def main(page: ft.Page, regClinico):
                         ft.TextButton(
                             "No",
                             on_click=lambda e: respuesta(e, "No"),
-                        ),   
+                        ), 
+                        ft.TextButton(
+                            "Concluir",
+                            on_click=lambda e: conclusion(e),
+                        ) 
                     ]
                 ),
                 ft.Container(
@@ -83,28 +89,47 @@ def main(page: ft.Page, regClinico):
     def respuesta(e, res):
         global preg, i, preguntas, image    
             
-        print(preguntas)
-        preguntas[i]["Respuesta"] = res
-        print(preguntas)
+        # print(preguntas)
+        preguntas[i]['Respuesta'] = res
+        # print(preguntas)
         
         # Preguntar a la IA
         res = co.chat(
             model="command-r-plus-08-2024",
             messages=[
                 {"role": "system", "content": system_message},  
-                {"role": "system", "content": "Necesito que estructures tu respuesta en un JSON tenga esta estructura: {'nPregunta': i+1,'Pregunta': '[tu pregunta]','Respuesta': None,'TipoPregunta': 1, 'imagen': None} . Las preguntas de tipo 1 son cerradas y 2 es abierta"},              
+                {"role": "system", "content": "Necesito que estructures tu respuesta en un JSON tenga esta estructura: {'nPregunta': i+1,'Pregunta': '[tu pregunta]','Respuesta': None,'TipoPregunta': 1, 'imagen': None} .no reinicies el contador de preguntas,  TipoPregunta:1 es para cuando haces preguntas cerradas , TipoPregunta: 2 es para cuando haces preguntas abiertas, TipoPregunta:3 es para cuando estás dando una conclusión"},              
                 {
                     "role": "user",
-                    "content": "Estas son las preguntas previas " + preguntas.__str__() + "\n si necesitas mas información haz otr pregunta (una a la vez), si tienes un diagnostico finaliza la conversación con una TipoPregunta:3 y la explicación del diagnostico y un posible tratamiento",
+                    "content": "Estas son las preguntas previas " + preguntas.__str__() + "\n si necesitas mas información haz otr pregunta. Si nPregunta = 12 debes dar ya una conclusión,  finaliza la conversación con una TipoPregunta:3 y la explicación del diagnostico y un posible tratamiento",
                 },
             ],
+            response_format={"type": "json_object",
+                             "schema": {
+                                 "type": "object",
+                                 "properties": {
+                                     "nPregunta": {"type": "number"},
+                                     "Pregunta": {"type": "string"},
+                                     "Respuesta": {"type": "string"},
+                                     "TipoPregunta": {"type": "number"},
+                                     "imagen": {"type": "string"},
+                                 },
+                                 "required": ["nPregunta", "Pregunta", "TipoPregunta"],
+                             },
+            }
         )
-        print(res.message.content[0].text)
+        # print(res.message.content[0])
         #preguntas.append({"nPregunta":i+1,"Pregunta": res.message.content[0].text, "Respuesta": None})
-        preguntas.append(res.message.content[0].text.to_dict())
-        print(preguntas)
+        # preguntas.append(res.message.content[0].text) 
+        jsonContent = json.loads(res.message.content[0].text)
+        print (jsonContent)
+        preguntas.append(jsonContent)        
         i = i + 1
         
+        print('\n')
+        print(preguntas)
+        print('\n')
+
         # Actualiza el valor de la pregunta y refresca el control
         preg.value = preguntas[i]["Pregunta"]
         preg.update()
@@ -139,4 +164,23 @@ def main(page: ft.Page, regClinico):
             print("No se encontraron resultados de imágenes.")
             return None
 
+    #función para consultar a la ia que haga una conclusión en base a las preguntas
+    def conclusion(e):
+        global preguntas        
+        print('\n')
+        print(preguntas)
+        print('\n')
+        # Preguntar a la IA
+        res = co.chat(
+            model="command-r-plus-08-2024",
+            messages=[
+                {"role": "system", "content": system_message},
+                {
+                    "role": "user","content":"Concluye si el paciente tiene dengue o no tiene dengue en base a estas preguntas " + preguntas.__str__(),
+                },
+            ]
+        )
+        print(res.message.content[0].text)
+        preg.value = res.message.content[0].text
+        preg.update()
 # ft.app(target=main)
