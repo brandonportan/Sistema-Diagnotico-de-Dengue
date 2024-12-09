@@ -4,6 +4,7 @@ from serpapi import GoogleSearch
 import os
 from dotenv import load_dotenv
 import json
+import form as f
 
 load_dotenv()
 serpapi_key = os.getenv("SERPAPI_KEY")
@@ -62,7 +63,7 @@ def main(page: ft.Page, regClinico):
     page.padding = 20
     page.update()
 
-    system_message = "Me ayudarás a diagnósticar la enfermedad del dengue y su posible tratamiento. " + str(regClinico)
+    system_message = "Me ayudarás a diagnósticar la enfermedad del dengue  y su posible trataimiento, primero harás preguntas cerradas una por una (con un máximo de 12), luego, si necesitas mas información puedes hacer dos preguntas abiertas, todo con el objetivo de dar una conclusión si el paciente tiene o no dengue y que tipo de dengue, para que tengas un contexto inicial esta es información médica general del paciente:  " + regClinico.__str__() 
 
     # Contenedor para el diagrama
     diagram_container = ft.Container(
@@ -199,4 +200,5 @@ def main(page: ft.Page, regClinico):
     page.add(container1)
 
 # Ejecutar la aplicación pasando regClinico
-ft.app(target=lambda page: start_system_expert(page, regClinico))
+if __name__ == "__main__":
+    ft.app(target=lambda page: start_system_expert(page, regClinico))

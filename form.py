@@ -1,6 +1,6 @@
 import flet as ft
 import json
-import diagnostico
+import diagrama as d
 
 global data 
 
@@ -52,7 +52,7 @@ def main(page: ft.Page):
         page.update()
         # Llamar el otro formulario y pasar la información del paciente
         print(data)
-        diagnostico.start_system_expert(page, data)
+        d.start_system_expert(page, data)
 
 
     # Contenedor para opciones de enfermedades crónicas
@@ -161,5 +161,5 @@ def main(page: ft.Page):
     page.add(form)
     page.update()
 
-
-ft.app(main)
+if __name__ == "__main__":
+    ft.app(main)

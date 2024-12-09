@@ -1,9 +1,9 @@
 {
-    "nombres": "Daniel",
-    "apellidos": "S\u00e1nchez",
-    "residencia_viajes": "sdlfkj",
-    "contacto_dengue": true,
-    "antecedentes_dengue": true,
+    "nombres": "Brandon",
+    "apellidos": "Portan",
+    "residencia_viajes": "Honduras",
+    "contacto_dengue": false,
+    "antecedentes_dengue": false,
     "enfermedades_cronicas": false,
     "tipos_enfermedades_cronicas": {
         "diabetes": false,
@@ -12,7 +12,7 @@
         "otros": ""
     },
     "agua_potable_control_mosquitos": true,
-    "medicamentos_usados": "Panadol Extra fuerte",
+    "medicamentos_usados": "Paracetamol",
     "problemas_respiratorios_desHidratacion": true,
     "sexo": "Masculino"
 }
