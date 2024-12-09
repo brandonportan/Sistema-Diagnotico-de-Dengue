@@ -1,18 +1,18 @@
 {
-    "nombres": "Brandon",
-    "apellidos": "Portan",
-    "residencia_viajes": "Honduras",
-    "contacto_dengue": false,
+    "nombres": "Damin",
+    "apellidos": "Contra",
+    "residencia_viajes": "Suiza",
+    "contacto_dengue": true,
     "antecedentes_dengue": false,
-    "enfermedades_cronicas": false,
+    "enfermedades_cronicas": true,
     "tipos_enfermedades_cronicas": {
         "diabetes": false,
-        "hipertension": false,
+        "hipertension": true,
         "enfermedad_cardiaca": false,
         "otros": ""
     },
     "agua_potable_control_mosquitos": true,
-    "medicamentos_usados": "Paracetamol",
+    "medicamentos_usados": "Paracetamol, Mota",
     "problemas_respiratorios_desHidratacion": true,
-    "sexo": "Masculino"
+    "sexo": "Femenino"
 }

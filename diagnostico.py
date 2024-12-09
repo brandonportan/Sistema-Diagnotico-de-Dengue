@@ -51,7 +51,7 @@ def main(page: ft.Page, regClinico):
     page.padding = 20
     page.update()
 
-    system_message = "Me ayudarás a diagnósticar la enfermedad del dengue  y su posible trataimiento, primero harás preguntas cerradas una por una (con un máximo de 12), luego, si necesitas mas información puedes hacer dos preguntas abiertas, todo con el objetivo de dar una conclusión si el paciente tiene o no dengue y que tipo de dengue, para que tengas un contexto inicial esta es información médica general del paciente:  " + regClinico.__str__() 
+    system_message = "Me ayudarás a diagnósticar la enfermedad del dengue  y su posible tratamiento, primero harás preguntas cerradas una por una, si necesitas mas información puedes hacer hasta dos preguntas abiertas, todo con el objetivo de dar una conclusión si el paciente tiene o no dengue y que tipo de dengue, para que tengas un contexto inicial esta es información médica general del paciente:  " + regClinico.__str__() 
 
     container1 = ft.Container(
         width=400,
@@ -88,57 +88,64 @@ def main(page: ft.Page, regClinico):
 
     def respuesta(e, res):
         global preg, i, preguntas, image    
-            
-        # print(preguntas)
-        preguntas[i]['Respuesta'] = res
-        # print(preguntas)
         
-        # Preguntar a la IA
+        # Registrar la respuesta
+        preguntas[i]['Respuesta'] = res
+        
+        # Crear mensaje para la IA
+        mensaje_usuario = (
+            "Estas son las preguntas previas: " + preguntas.__str__() + 
+            "\nSi necesitas más información haz otra pregunta. Si nPregunta = 12, da una conclusión con TipoPregunta: 3 basándote en las preguntas dadas."
+        )
+        
+        # Solicitar respuesta a la IA
         res = co.chat(
             model="command-r-plus-08-2024",
             messages=[
-                {"role": "system", "content": system_message},  
-                {"role": "system", "content": "Necesito que estructures tu respuesta en un JSON tenga esta estructura: {'nPregunta': i+1,'Pregunta': '[tu pregunta]','Respuesta': None,'TipoPregunta': 1, 'imagen': None} .no reinicies el contador de preguntas,  TipoPregunta:1 es para cuando haces preguntas cerradas , TipoPregunta: 2 es para cuando haces preguntas abiertas, TipoPregunta:3 es para cuando estás dando una conclusión"},              
-                {
-                    "role": "user",
-                    "content": "Estas son las preguntas previas " + preguntas.__str__() + "\n si necesitas mas información haz otr pregunta. Si nPregunta = 12 debes dar ya una conclusión,  finaliza la conversación con una TipoPregunta:3 y la explicación del diagnostico y un posible tratamiento",
-                },
+                {"role": "system", "content": system_message},
+                {"role": "system", "content": "Estructura tu respuesta en un JSON con la estructura indicada. No reinicies el contador de preguntas."},
+                {"role": "user", "content": mensaje_usuario},
             ],
-            response_format={"type": "json_object",
-                             "schema": {
-                                 "type": "object",
-                                 "properties": {
-                                     "nPregunta": {"type": "number"},
-                                     "Pregunta": {"type": "string"},
-                                     "Respuesta": {"type": "string"},
-                                     "TipoPregunta": {"type": "number"},
-                                     "imagen": {"type": "string"},
-                                 },
-                                 "required": ["nPregunta", "Pregunta", "TipoPregunta"],
-                             },
+            response_format={
+                "type": "json_object",
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "nPregunta": {"type": "number"},
+                        "Pregunta": {"type": "string"},
+                        "Respuesta": {"type": "string"},
+                        "TipoPregunta": {"type": "number"},
+                        "imagen": {"type": "string"},
+                    },
+                    "required": ["nPregunta", "Pregunta", "TipoPregunta"],
+                },
             }
         )
-        # print(res.message.content[0])
-        #preguntas.append({"nPregunta":i+1,"Pregunta": res.message.content[0].text, "Respuesta": None})
-        # preguntas.append(res.message.content[0].text) 
-        jsonContent = json.loads(res.message.content[0].text)
-        print (jsonContent)
-        preguntas.append(jsonContent)        
-        i = i + 1
-        
-        print('\n')
-        print(preguntas)
-        print('\n')
 
-        # Actualiza el valor de la pregunta y refresca el control
-        preg.value = preguntas[i]["Pregunta"]
-        preg.update()
+        # Procesar la respuesta recibida
+        try:
+            jsonContent = json.loads(res.message.content[0].text)
+            if 'nPregunta' in jsonContent and 'TipoPregunta' in jsonContent:
+                if jsonContent['nPregunta'] != i + 1:
+                    raise ValueError("El contador de preguntas no coincide con el esperado.")
+                
+                preguntas.append(jsonContent)
+                i += 1
+                
+                # Actualizar control de UI
+                preg.value = preguntas[i]["Pregunta"]
+                preg.update()
 
-        # Actualiza la imagen con el nuevo enlace
-        new_image_link = get_image_link(0, preguntas[i]["Pregunta"])
-        if new_image_link:
-            image.src = new_image_link
-            image.update()
+                # Actualizar imagen
+                new_image_link = get_image_link(0, preguntas[i]["Pregunta"])
+                if new_image_link:
+                    image.src = new_image_link
+                    image.update()
+            else:
+                raise ValueError("El JSON recibido está incompleto o mal formateado.")
+        except Exception as ex:
+            print(f"Error procesando la respuesta de la IA: {ex}")
+
 
     def get_image_link(pageNumber, query):
         global serpapi_key

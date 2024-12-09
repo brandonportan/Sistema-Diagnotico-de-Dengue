@@ -62,7 +62,7 @@ def main(page: ft.Page, regClinico):
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
     page.padding = 20
     page.update()
-
+    
     system_message = "Me ayudarás a diagnósticar la enfermedad del dengue  y su posible trataimiento, primero harás preguntas cerradas una por una (con un máximo de 12), luego, si necesitas mas información puedes hacer dos preguntas abiertas, todo con el objetivo de dar una conclusión si el paciente tiene o no dengue y que tipo de dengue, para que tengas un contexto inicial esta es información médica general del paciente:  " + regClinico.__str__() 
 
     # Contenedor para el diagrama
@@ -80,7 +80,7 @@ def main(page: ft.Page, regClinico):
     counter = 0
     diagram_container.content.controls.append(
         ft.Container(
-            width=diagram_container.width * 0.3,
+            width=diagram_container.width * 0.28,
             height=60,
             border_radius=30,
             bgcolor="lightblue",
@@ -109,7 +109,7 @@ def main(page: ft.Page, regClinico):
         # Crear el recuadro con la pregunta dentro
         diagram_container.content.controls.append(
             ft.Container(
-                width=diagram_container.width * 0.3,
+                width=diagram_container.width * 0.28,
                 height=80,
                 bgcolor="lightgreen",
                 content=ft.Text(str(preguntas[i]["Pregunta"]), size=20, text_align="center"),
@@ -124,13 +124,18 @@ def main(page: ft.Page, regClinico):
         res = co.chat(
             model="command-r-plus-08-2024",
             messages=[
-                {"role": "system", "content": system_message},
-                {"role": "user", "content": "Estas son las preguntas previas " + str(preguntas) + "\n si necesitas más información haz otra pregunta. Si nPregunta = 12, da la conclusión."},
+                {"role": "system", "content": system_message},  
+                {"role": "system", "content": "Necesito que estructures tu respuesta en un JSON tenga esta estructura: {'nPregunta': i+1,'Pregunta': '[tu pregunta]','Respuesta': None,'TipoPregunta': 1, 'imagen': None} . no reinicies el contador de preguntas. EN el JSON por favor cambia el valor y coloca 'TipoPregunta': 1 si es para cuando haces preguntas cerradas, 'TipoPregunta': 2 si es para cuando haces preguntas abiertas, 'TipoPregunta': 3 es para cuando estás dando una conclusión"},              
+                {
+                    "role": "user",
+                    "content": "Estas son las preguntas previas " + preguntas.__str__() + "\n si necesitas mas información haz otr pregunta. Si nPregunta = 12 debes dar ya una conclusión,  finaliza la conversación con una TipoPregunta:3 y la explicación del diagnostico y un posible tratamiento",
+                },
             ],
             response_format={"type": "json_object", "schema": {"type": "object", "properties": {"nPregunta": {"type": "number"}, "Pregunta": {"type": "string"}, "Respuesta": {"type": "string"}, "TipoPregunta": {"type": "number"}, "imagen": {"type": "string"}}, "required": ["nPregunta", "Pregunta", "TipoPregunta"]}}
         )
         jsonContent = json.loads(res.message.content[0].text)
         preguntas.append(jsonContent)
+        print (jsonContent)
         i += 1
         page.update()
         add_element(res)
@@ -157,20 +162,33 @@ def main(page: ft.Page, regClinico):
             model="command-r-plus-08-2024",
             messages=[{"role": "system", "content": system_message}, {"role": "user", "content": "Concluye si el paciente tiene dengue o no en base a estas preguntas " + str(preguntas)}]
         )
+        preg.soft_wrap = True
         preg.value = res.message.content[0].text
+        columnaDerecha.controls = [preg]
+        container1.content.controls[0].controls = [diagram_container]
+        container1.content.controls[0].height= page.height*0.7
         page.update()
 
+    columnaDerecha =ft.Column(
+                    controls =[
+                        ft.Container(content=image),
+                    ],
+                       alignment=ft.MainAxisAlignment.CENTER,  # Centra el contenido verticalmente
+                    scroll="auto",
+                    horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                    width=page.width * 0.4,
+                    height=page.height * 0.7,
+                )
     # Contenedor principal de la interfaz
     container1 = ft.Container(
-        width=page.width,
         height=page.height,
         bgcolor=ft.colors.BLUE_GREY_800,
         border_radius=20,
         content=ft.Row(
-            [
+            controls= [
                 # Columna para el diagrama
                 ft.Column(
-                    [
+                    controls= [
                         preg,
                         diagram_container,
                         ft.Row(
@@ -181,23 +199,23 @@ def main(page: ft.Page, regClinico):
                             ]
                         )
                     ],
+                    scroll= "auto",
+                    height=page.height * 0.9,
                     spacing=10,
+                    width= page.width *0.5,
                     horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                 ),
                 # Columna para la imagen
-                ft.Column(
-                    [
-                        ft.Container(content=image),
-                    ],
-                    horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                    width=page.width * 0.4,  # Ajusta el tamaño del contenedor de la imagen
-                    height=page.height * 0.7,  # Ajusta la altura del contenedor de la imagen
-                ),
-            ]
+                columnaDerecha,
+            ],
+            spacing=20,
+            width= page.width *0.9
         )
     )
 
+
     page.add(container1)
+
 
 # Ejecutar la aplicación pasando regClinico
 if __name__ == "__main__":
