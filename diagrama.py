@@ -131,8 +131,7 @@ def main(page: ft.Page, regClinico):
         jsonContent = json.loads(res.message.content[0].text)
         preguntas.append(jsonContent)
         i += 1
-        preg.value = preguntas[i]["Pregunta"]
-        preg.update()
+        page.update()
         add_element(res)
 
         # Buscar imagen en internet
@@ -158,7 +157,7 @@ def main(page: ft.Page, regClinico):
             messages=[{"role": "system", "content": system_message}, {"role": "user", "content": "Concluye si el paciente tiene dengue o no en base a estas preguntas " + str(preguntas)}]
         )
         preg.value = res.message.content[0].text
-        preg.update()
+        page.update()
 
     # Contenedor principal de la interfaz
     container1 = ft.Container(
